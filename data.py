@@ -262,24 +262,29 @@ class TransactionSummary:
         self.__inputs = []
         self.__outputs = []
 
-        for vin in transaction.get_vins():
-            txid = vin.get_txid()
-            n = vin.get_vout()
-            _input = rpc.transactions.get_transaction(txid)
-            value = float(_input.get_vouts()[n].get_value())
-            addresses = _input.get_vouts()[n].get_script_pubkey().get_addresses()
-            for a in addresses:
-                self.__inputs.append([a, value / len(addresses)])
+        if not transaction.is_coinbase():
+            for vin in transaction.get_vins():
+                txid = vin.get_txid()
+                n = vin.get_vout()
+                _input = rpc.transactions.get_transaction(txid)
+                value = float(_input.get_vouts()[n].get_value())
+                addresses = _input.get_vouts()[n].get_script_pubkey().get_addresses()
+                for a in addresses:
+                    self.__inputs.append([a, value / len(addresses)])
 
         for vout in transaction.get_vouts():
             value = float(vout.get_value())
             addresses = vout.get_script_pubkey().get_addresses()
-            for a in addresses:
-                self.__outputs.append([a, value / len(addresses)])
+            if addresses:
+                for a in addresses:
+                    self.__outputs.append([a, value / len(addresses)])
 
         self.__total_input = sum([_input[1] for _input in self.__inputs])
         self.__total_output = sum([_output[1] for _output in self.__outputs])
-        self.__fee = self.__total_input - self.__total_output
+        if transaction.is_coinbase:
+            self.__fee = 0
+        else:
+            self.__fee = self.__total_input - self.__total_output
         if self.__transaction.get_time():
             self.__date = datetime.fromtimestamp(self.__transaction.get_time())
 
