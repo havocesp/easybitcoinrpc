@@ -279,8 +279,8 @@ class TransactionSummary:
                 for a in addresses:
                     self.__outputs.append([a, value / len(addresses)])
 
-        self.__total_input = sum([_input[1] for _input in self.__inputs])
-        self.__total_output = sum([_output[1] for _output in self.__outputs])
+        self.__total_input = sum(_input[1] for _input in self.__inputs)
+        self.__total_output = sum(_output[1] for _output in self.__outputs)
         if transaction.is_coinbase:
             self.__fee = 0
         else:
