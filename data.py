@@ -274,8 +274,7 @@ class TransactionSummary:
 
         for vout in transaction.get_vouts():
             value = float(vout.get_value())
-            addresses = vout.get_script_pubkey().get_addresses()
-            if addresses:
+            if addresses := vout.get_script_pubkey().get_addresses():
                 for a in addresses:
                     self.__outputs.append([a, value / len(addresses)])
 
